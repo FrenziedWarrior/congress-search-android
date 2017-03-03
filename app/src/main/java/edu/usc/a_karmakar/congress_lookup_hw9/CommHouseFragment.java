@@ -1,0 +1,101 @@
+package edu.usc.a_karmakar.congress_lookup_hw9;
+
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class CommHouseFragment extends Fragment implements MyJsonTask.AsyncResponse {
+    MyCommTag[] commArray;
+    CommListAdapter adapter;
+    View rootView;
+    private MyJsonTask myTask;
+
+    public CommHouseFragment() {
+        // Required empty public constructor
+    }
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        rootView = inflater.inflate(R.layout.fragment_comm_tab, container, false);
+        try {
+            myTask = new MyJsonTask(this);
+            myTask.execute(new URL("http://congress-lookup.appspot.com/congress8.php?method=com"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return rootView;
+    }
+
+
+    @Override
+    public void processFinish(String output) {
+        ListView listView;
+        GsonFilter gfObject = new GsonFilter(output);
+        gfObject.commParse("house");
+
+        commArray = gfObject.getCommInfoArray();
+        adapter = new CommListAdapter(getActivity(), R.layout.list_item_comm, commArray);
+        listView = (ListView) rootView.findViewById(R.id.comm_list_view);
+        listView.setAdapter(adapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent mIntent = new Intent(getActivity(), CommDetailActivity.class);
+
+                String thisCommId = commArray[position].getCommittee_id();
+                String thisCommName = commArray[position].getName();
+                String thisCommPC = commArray[position].getParent_committee_id();
+                String thisCommChamber = commArray[position].getChamber().equals("house") ? "House" : "Senate";
+                String thisCommContact = commArray[position].getPhone();
+                String thisCommOffice = commArray[position].getOffice();
+
+                mIntent.putExtra("commID", thisCommId);
+                mIntent.putExtra("commName", thisCommName);
+                mIntent.putExtra("commChamber", thisCommChamber);
+                mIntent.putExtra("commPC", thisCommPC);
+                mIntent.putExtra("commContact", thisCommContact);
+                mIntent.putExtra("commOffice", thisCommOffice);
+
+                startActivity(mIntent);
+            }
+        });
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        myTask.cancel(true);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ActionBar mActionBar =  ((AppCompatActivity) getActivity()).getSupportActionBar();
+        mActionBar.setTitle("Committees");
+    }
+
+}

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="9sp"
+    android:background="@drawable/gradient_bg">
+
+    <ImageView
+        android:id="@+id/img_leg"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:adjustViewBounds="true"
+        android:maxWidth="65dp"
+        android:maxHeight="65dp"
+        android:scaleType="fitCenter"
+        />
+    <LinearLayout
+        android:id="@+id/text_holder"
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="3"
+        android:layout_marginLeft="13dp"
+        >
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/legNameBlack"
+            android:textSize="@dimen/leg_name_size"/>
+        <TextView
+            android:id="@+id/tv_state"
+            android:textColor="@color/darkerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- set position of right arrow to be fixed -->
+    <ImageView
+        android:id="@+id/right_icon"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="2"
+        android:src="@drawable/black_right_arrow"
+        />
+</LinearLayout>

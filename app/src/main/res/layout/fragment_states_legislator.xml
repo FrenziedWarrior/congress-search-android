@@ -1,0 +1,29 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    tools:context="edu.usc.a_karmakar.congress_lookup_hw9.LegislatorStatesFragment">
+
+    <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/legs_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        />
+
+    <ScrollView
+        android:layout_width="50dp"
+        android:layout_height="fill_parent"
+        android:layout_marginStart="-50dp"
+        android:layout_marginLeft="-0dp"
+        android:fillViewport="true">
+        <LinearLayout
+            android:id="@+id/side_index"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:background="#c3c3c3"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            />
+    </ScrollView>
+</LinearLayout>

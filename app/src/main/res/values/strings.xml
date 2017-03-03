@@ -1,0 +1,59 @@
+<resources>
+    <string name="app_name">Legislators</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="action_settings">Action Settings</string>
+    <string name="menu_launcher">Open menu</string>
+    <string name="app_title">Congress API</string>
+    <string-array name="nav_links_array">
+        <item>Legislators</item>
+        <item>Bills</item>
+        <item>Committees</item>
+        <item>Favorites</item>
+        <item>About</item>
+    </string-array>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_legislator_detail">LegislatorDetailActivity</string>
+
+    <string name="detail_chamb_label">Chamber:</string>
+
+    <string name="detail_leg_name_label">Name:</string>
+    <string name="detail_leg_email_label">Email:</string>
+    <string name="detail_leg_phone_label">Contact:</string>
+    <string name="detail_leg_sterm_label">Start Term:</string>
+    <string name="detail_leg_eterm_label">End Term:</string>
+    <string name="detail_leg_term_label">Term:</string>
+    <string name="detail_leg_office_label">Office:</string>
+    <string name="detail_leg_state_label">State:</string>
+    <string name="detail_leg_fax_label">Fax:</string>
+    <string name="detail_leg_bday_label">Birthday:</string>
+
+    <string name="detail_bill_id_label">Bill ID:</string>
+    <string name="detail_bill_title_label">Title:</string>
+    <string name="detail_bill_type_label">Bill Type:</string>
+    <string name="detail_bill_sponsor_label">Sponsor:</string>
+    <string name="detail_bill_stat_label">Status:</string>
+    <string name="detail_bill_ion_label">Introduced On:</string>
+    <string name="detail_bill_curl_label">Congress URL:</string>
+    <string name="detail_bill_vs_label">Version Status:</string>
+    <string name="detail_bill_url_label">Bill URL:</string>
+
+    <string name="detail_comm_id_label">Committee ID:</string>
+    <string name="detail_comm_pc_label">Parent Committee:</string>
+    <string name="detail_comm_name_label">Name:</string>
+
+    <string name="i">Independent</string>
+    <string name="d">Democrat</string>
+    <string name="r">Republican</string>
+    <string name="title_activity_bill_detail">BillDetailActivity</string>
+    <string name="title_activity_comm_detail">CommDetailActivity</string>
+    <string name="preference_file_key">edu.usc.a_karmakar.congress_lookup_hw9.favorite_list</string>
+    <string name="favoriteLegislators">fav_legs</string>
+    <string name="favoriteBills">fav_bill</string>
+    <string name="favoriteCommittees">fav_comm</string>
+
+    <string name="authorName">Abhishek Karmakar</string>
+    <string name="authorId">4363692067</string>
+
+</resources>
