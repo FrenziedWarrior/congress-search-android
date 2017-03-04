@@ -2,23 +2,21 @@ package edu.usc.a_karmakar.congress_lookup_hw9;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+
 import java.util.HashSet;
 import java.util.Set;
 
 public class CommDetailActivity extends AppCompatActivity {
-    private MyBillTag infoObj;
-    private ViewHolder myCommHolder;
-    private String currCommId;
+    private String currCommBundle;
 
     private class ViewHolder {
         TextView commId;
@@ -36,36 +34,40 @@ public class CommDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_comm_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarComm);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Committee Info");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Committee Info");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
-        String extraId = getIntent().getExtras().getString("commID");
-        String extraName = getIntent().getExtras().getString("commName");
-        String extraChamber = getIntent().getExtras().getString("commChamber");
+        Gson gson = new Gson();
+        currCommBundle = getIntent().getExtras().getString("commBundle");
+        MyCommTag cdBundle = gson.fromJson(currCommBundle, MyCommTag.class);
 
-        String extraOffice = getIntent().getExtras().getString("commOffice");
+        String extraId = cdBundle.getCommittee_id();
+        String extraName = cdBundle.getName();
+        String extraChamber = cdBundle.getChamber();
+
+        String extraOffice = cdBundle.getOffice();
         extraOffice = extraOffice == null ? "N.A." : extraOffice;
 
-        String extraPC = getIntent().getExtras().getString("commPC");
+        String extraPC = cdBundle.getParent_committee_id();
         extraPC = extraPC == null ? "N.A." : extraPC;
 
-        String extraContact = getIntent().getExtras().getString("commContact");
+        String extraContact = cdBundle.getPhone();
         extraContact = extraContact == null ? "N.A." : extraContact;
-
-        currCommId = extraId;
 
         // load favorite star or regular star
         SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         Set<String> Keys = sharedPref.getStringSet(getString(R.string.favoriteCommittees), new HashSet<String>());
         ImageView favStar = (ImageView) findViewById(R.id.fav_button_comm);
-        if (Keys.contains(currCommId)) {
+        if (Keys.contains(currCommBundle)) {
             favStar.setImageResource(R.drawable.ic_star);
         }
         else {
             favStar.setImageResource(R.drawable.ic_inactive_star);
         }
 
-        myCommHolder = new ViewHolder();
+        ViewHolder myCommHolder = new ViewHolder();
 
         myCommHolder.commId = (TextView) findViewById(R.id.comm_id);
         myCommHolder.commId.setText(extraId);
@@ -112,20 +114,18 @@ public class CommDetailActivity extends AppCompatActivity {
         SharedPreferences sharedPref = this.getSharedPreferences(
                 getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-
-        Set<String> cidKeys = sharedPref.getStringSet(getString(R.string.favoriteCommittees), new HashSet<String>());
-        Set<String> newSet = new HashSet<String>();
-        newSet.addAll(cidKeys);
-        if (newSet.contains(currCommId)) {
-            newSet.remove(currCommId);
+        Set<String> commBundleSet = sharedPref.getStringSet(getString(R.string.favoriteCommittees), new HashSet<String>());
+        Set<String> newSet = new HashSet<>();
+        newSet.addAll(commBundleSet);
+        if (newSet.contains(currCommBundle)) {
+            newSet.remove(currCommBundle);
             favStar.setImageResource(R.drawable.ic_inactive_star);
         }
         else {
-            newSet.add(currCommId);
+            newSet.add(currCommBundle);
             favStar.setImageResource(R.drawable.ic_star);
         }
-        editor.putStringSet(getString(R.string.favoriteCommittees), newSet);
-        editor.apply();
+        editor.putStringSet(getString(R.string.favoriteCommittees), newSet).apply();
     }
 
 }

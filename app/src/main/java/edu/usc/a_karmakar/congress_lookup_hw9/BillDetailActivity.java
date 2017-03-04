@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
@@ -17,9 +19,7 @@ import java.util.Locale;
 import java.util.Set;
 
 public class BillDetailActivity extends AppCompatActivity{
-    private MyBillTag infoObj;
-    private ViewHolder myBillHolder;
-    private String currBillId;
+    private String currBillBundle;
 
     private class ViewHolder {
         TextView billId;
@@ -40,35 +40,40 @@ public class BillDetailActivity extends AppCompatActivity{
         setContentView(R.layout.activity_bill_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarBill);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Bill Info");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Bill Info");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
-        String extraBid = getIntent().getExtras().getString("billID");
-        String extraType = getIntent().getExtras().getString("billType");
-        String extraTitle = getIntent().getExtras().getString("billTitle");
-        String extraChamber = getIntent().getExtras().getString("billChamber");
-        String extraStatus = getIntent().getExtras().getString("billStatus");
-        String extraIon = getIntent().getExtras().getString("billIntroOn");
-        String extraSponsor = getIntent().getExtras().getString("billSponsor");
-        String extraUrl= getIntent().getExtras().getString("billUrl");
-        String extraCurl= getIntent().getExtras().getString("billCurl");
-        String extraVS= getIntent().getExtras().getString("billVS");
+        Gson gson = new Gson();
+        currBillBundle = getIntent().getExtras().getString("billBundle");
+        MyBillTag bdBundle = gson.fromJson(currBillBundle, MyBillTag.class);
 
-        currBillId = extraBid;
+        String extraBid = bdBundle.getBill_id();
+        String extraTitle = bdBundle.getOfficial_title();
+        String extraType = bdBundle.getBill_type();
+        String extraChamber = bdBundle.getChamber().equals("house") ? "House" : "Senate";
+        String extraIon = bdBundle.getIntroduced_on();
+        String extraSponsor = bdBundle.getSponsor().getTitle() + ". " +
+                bdBundle.getSponsor().getLast_name() + ", " +
+                bdBundle.getSponsor().getFirst_name();
+        String extraStatus = bdBundle.getHistory().isActive() ? "Active" : "New";
+        String extraCurl = bdBundle.getUrls().getCongress();
+        String extraVS = bdBundle.getLast_version().getVersion_name();
+        String extraUrl = bdBundle.getLast_version().getUrl().getHtml();
 
         // load favorite star or regular star
         SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         Set<String> bidKeys = sharedPref.getStringSet(getString(R.string.favoriteBills), new HashSet<String>());
         ImageView favStar = (ImageView) findViewById(R.id.fav_button_bill);
-        if (bidKeys.contains(currBillId)) {
+        if (bidKeys.contains(currBillBundle)) {
             favStar.setImageResource(R.drawable.ic_star);
         }
         else {
             favStar.setImageResource(R.drawable.ic_inactive_star);
         }
 
-
-        myBillHolder = new ViewHolder();
+        ViewHolder myBillHolder = new ViewHolder();
 
         myBillHolder.billId = (TextView) findViewById(R.id.bill_id);
         myBillHolder.billId.setText(extraBid);
@@ -126,16 +131,16 @@ public class BillDetailActivity extends AppCompatActivity{
         ImageView favStar = (ImageView) findViewById(R.id.fav_button_bill);
         SharedPreferences sharedPref = this.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        Set<String> bidKeys = sharedPref.getStringSet(getString(R.string.favoriteBills), new HashSet<String>());
+        Set<String> billBundleSet = sharedPref.getStringSet(getString(R.string.favoriteBills), new HashSet<String>());
 
-        Set<String> newSet = new HashSet<String>();
-        newSet.addAll(bidKeys);
-        if (newSet.contains(currBillId)) {
-            newSet.remove(currBillId);
+        Set<String> newSet = new HashSet<>();
+        newSet.addAll(billBundleSet);
+        if (newSet.contains(currBillBundle)) {
+            newSet.remove(currBillBundle);
             favStar.setImageResource(R.drawable.ic_inactive_star);
         }
         else {
-            newSet.add(currBillId);
+            newSet.add(currBillBundle);
             favStar.setImageResource(R.drawable.ic_star);
         }
         editor.putStringSet(getString(R.string.favoriteBills), newSet).apply();

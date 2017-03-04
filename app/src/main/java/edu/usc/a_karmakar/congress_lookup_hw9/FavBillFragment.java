@@ -13,40 +13,33 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
+import com.google.gson.Gson;
+
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FavBillFragment extends Fragment implements MyJsonTask.AsyncResponse {
+public class FavBillFragment extends Fragment {
     private View rootView;
-    private ListView listView;
     MyBillTag[] billArray;
     BillListAdapter adapter;
-    private MyJsonTask myTask;
-
+    SharedPreferences sharedPref;
+    Set<String> listFavBills;
+    Gson gson;
     public FavBillFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_bill_act, container, false);
-        try {
-            myTask = new MyJsonTask(this);
-            myTask.execute(new URL("http://congress-lookup.appspot.com/congress8.php?method=bill"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        gson = new Gson();
+        sharedPref = getActivity().getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         return rootView;
     }
 
@@ -55,78 +48,37 @@ public class FavBillFragment extends Fragment implements MyJsonTask.AsyncRespons
     public void onResume() {
         super.onResume();
         ActionBar mActionBar =  ((AppCompatActivity) getActivity()).getSupportActionBar();
+        assert mActionBar != null;
         mActionBar.setTitle("Favorites");
-
-        if (billArray==null) {
-            return;
-        }
-
-        ArrayList<MyBillTag> newBillList = new ArrayList<>(Arrays.asList(billArray));
-        SharedPreferences sharedPref = getActivity().getSharedPreferences(
-                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        Set<String> bidKeys = sharedPref.getStringSet(getString(R.string.favoriteBills), new HashSet<String>());
-        for(int i=0; i<newBillList.size(); ++i) {
-            if(!bidKeys.contains(newBillList.get(i).getBill_id())) {
-                newBillList.remove(newBillList.get(i));
-            }
-        }
-
-        billArray = newBillList.toArray(new MyBillTag[newBillList.size()]);
-        adapter.update(billArray);
-        adapter.notifyDataSetChanged();
+        populateFavBillList();
     }
 
-    @Override
-    public void processFinish(String output) {
-        GsonFilter gfObject = new GsonFilter(output);
-        SharedPreferences sharedPref = getActivity().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        boolean exists = sharedPref.contains(getString(R.string.favoriteBills));
-        Set<String> bidKeys = sharedPref.getStringSet(getString(R.string.favoriteBills), new HashSet<String>());
 
-        gfObject.filterFavBills(bidKeys);
-        billArray = gfObject.getFavBillArray();
+    private void populateFavBillList() {
+        listFavBills = sharedPref.getStringSet(getString(R.string.favoriteBills), new HashSet<String>());
+        Set<String> newSet = new HashSet<>();
+        newSet.addAll(listFavBills);
+
+        String[] strArrBills = newSet.toArray(new String[newSet.size()]);
+        billArray = new MyBillTag[newSet.size()];
+        for(int i=0; i<strArrBills.length; ++i) {
+            billArray[i] = new MyBillTag();
+            billArray[i] = gson.fromJson(strArrBills[i], MyBillTag.class);
+        }
+
         adapter = new BillListAdapter(getActivity(), R.layout.list_item_bill, billArray);
-        listView = (ListView) rootView.findViewById(R.id.bill_list_view);
+        ListView listView = (ListView) rootView.findViewById(R.id.bill_list_view);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent mIntent = new Intent(getActivity(), BillDetailActivity.class);
-
-                String thisBillId = billArray[position].getBill_id();
-                String thisBillTitle = billArray[position].getOfficial_title();
-                String thisBillType = billArray[position].getBill_type();
-                String thisBillChamber = billArray[position].getChamber().equals("house") ? "House" : "Senate";
-                String thisBillIntroOn = billArray[position].getIntroduced_on();
-                String thisBillSponsor = billArray[position].getSponsor().getTitle() + ". " +
-                                        billArray[position].getSponsor().getLast_name() + ", " +
-                                        billArray[position].getSponsor().getFirst_name();
-
-                String thisBillStatus = billArray[position].getHistory().isActive() ? "Active" : "New";
-                String thisBillCongressUrl = billArray[position].getUrls().getCongress();
-                String thisBillVS = billArray[position].getLast_version().getVersion_name();
-                String thisBillUrl = billArray[position].getLast_version().getUrl().getHtml();
-
-                mIntent.putExtra("billID", thisBillId);
-                mIntent.putExtra("billTitle", thisBillTitle);
-                mIntent.putExtra("billType", thisBillType);
-                mIntent.putExtra("billSponsor", thisBillSponsor);
-                mIntent.putExtra("billChamber", thisBillChamber);
-                mIntent.putExtra("billStatus", thisBillStatus);
-                mIntent.putExtra("billIntroOn", thisBillIntroOn);
-                mIntent.putExtra("billCurl", thisBillCongressUrl);
-                mIntent.putExtra("billVS", thisBillVS);
-                mIntent.putExtra("billUrl", thisBillUrl);
-
+                mIntent.putExtra("billBundle", billArray[position].toString());
                 startActivity(mIntent);
             }
         });
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        myTask.cancel(true);
-    }
+
 }

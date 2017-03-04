@@ -1,18 +1,12 @@
 package edu.usc.a_karmakar.congress_lookup_hw9;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
-
 import com.google.gson.Gson;
-import com.google.gson.JsonSerializer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -25,10 +19,16 @@ public class GsonFilter {
     private JSONObject details;
 //    private JSONArray details;
 
-    public MyLegsDetailTag getLegDetailBundle() { return ldBundle; }
+    MyLegsDetailTag getLegDetailBundle() { return ldBundle; }
     private MyLegsDetailTag ldBundle;
 
-    public MyLegislatorListTag[] getLegsInfoArray() { return legsInfoArray; }
+    public MyBillTag getBillDetailBundle() { return bdBundle; }
+    private MyBillTag bdBundle;
+
+//    public MyLegsDetailTag getLegDetailBundle() { return ldBundle; }
+//    private MyLegsDetailTag ldBundle;
+
+    MyLegislatorListTag[] getLegsInfoArray() { return legsInfoArray; }
     private MyLegislatorListTag[] legsInfoArray;
 
     public MyLegislatorListTag[] getFavLegArray() {return favLegArray;}
@@ -40,17 +40,17 @@ public class GsonFilter {
     public MyCommTag[] getFavCommArray() {return favCommArray;}
     private MyCommTag[] favCommArray;
 
-    public MyBillTag[] getBillInfoArray() {
+    MyBillTag[] getBillInfoArray() {
         return billInfoArray;
     }
     private MyBillTag[] billInfoArray;
 
-    public MyCommTag[] getCommInfoArray() {
+    MyCommTag[] getCommInfoArray() {
         return commInfoArray;
     }
     private MyCommTag[] commInfoArray;
 
-    public ArrayList<String> getIndexTargetList() {
+    ArrayList<String> getIndexTargetList() {
         return indexTargetList;
     }
     private ArrayList<String> indexTargetList;
@@ -62,7 +62,7 @@ public class GsonFilter {
         indexTargetList = new ArrayList<>();
     }
 
-    public void legsParse(String indexAttr) {
+    void legsParse(String indexAttr) {
         JSONObject currLeg;
         JSONArray allLegs;
 
@@ -82,10 +82,10 @@ public class GsonFilter {
 
                 legsInfoArray[i] = new MyLegislatorListTag();
                 legsInfoArray[i] = gson.fromJson(currLeg.toString(), MyLegislatorListTag.class);
-                if (indexAttr == "state") {
+                if (indexAttr.equals("state")) {
                     indexTargetList.add(legsInfoArray[i].getState_name());
                 }
-                else if (indexAttr == "name") {
+                else if (indexAttr.equals("name")) {
                     indexTargetList.add(legsInfoArray[i].getLast_name());
                 }
 
@@ -95,7 +95,7 @@ public class GsonFilter {
         }
     }
 
-    public void legsDetailsParse() {
+    void legsDetailsParse() {
         try {
 //            String sth = new JSONArray(myObj).getString(0);
             details = new JSONObject(myObj).getJSONArray("results").getJSONObject(0);
@@ -104,7 +104,6 @@ public class GsonFilter {
             e.printStackTrace();
         }
     }
-
 
     public void filterFavLegislators(Set<String> s) {
         JSONObject currLeg;
@@ -128,7 +127,17 @@ public class GsonFilter {
     }
 
 
-    public void billParse() {
+    public void billDetailParse() {
+        try {
+            details = new JSONObject(myObj).getJSONArray("results").getJSONObject(0);
+            ldBundle = gson.fromJson(details.toString(), MyLegsDetailTag.class);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    void billParse() {
 //        String sth = null;
         JSONObject currBill;
         try {
@@ -154,7 +163,7 @@ public class GsonFilter {
 
 
     public void filterFavBills(Set<String> s) {
-        String currentCategory = null;
+        String currentCategory;
         JSONObject currBill;
         JSONArray allBills;
         ArrayList<MyBillTag> targetBills = new ArrayList<>();
@@ -185,7 +194,7 @@ public class GsonFilter {
     }
 
 
-    public void commParse(String check) {
+    void commParse(String check) {
         JSONArray allComms;
         JSONObject currComm;
         String whichCh;

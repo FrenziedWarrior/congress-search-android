@@ -59,21 +59,7 @@ public class CommJointFragment extends Fragment implements MyJsonTask.AsyncRespo
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent mIntent = new Intent(getActivity(), CommDetailActivity.class);
-
-                String thisCommId = commArray[position].getCommittee_id();
-                String thisCommName = commArray[position].getName();
-                String thisCommChamber = commArray[position].getChamber().equals("house") ? "House" : "Senate";
-                String thisCommPC = commArray[position].getParent_committee_id();
-                String thisCommContact = commArray[position].getPhone();
-                String thisCommOffice = commArray[position].getOffice();
-
-                mIntent.putExtra("commID", thisCommId);
-                mIntent.putExtra("commName", thisCommName);
-                mIntent.putExtra("commChamber", thisCommChamber);
-                mIntent.putExtra("commPC", thisCommPC);
-                mIntent.putExtra("commContact", thisCommContact);
-                mIntent.putExtra("commOffice", thisCommOffice);
-
+                mIntent.putExtra("commBundle", commArray[position].toString());
                 startActivity(mIntent);
             }
         });

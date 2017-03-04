@@ -13,14 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.google.gson.Gson;
 
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,6 +56,7 @@ public class FavLegsFragment extends Fragment{
     public void onResume() {
         super.onResume();
         ActionBar mActionBar =  ((AppCompatActivity) getActivity()).getSupportActionBar();
+        assert mActionBar != null;
         mActionBar.setTitle("Favorites");
         populateFavoriteList();
     }
@@ -70,7 +66,6 @@ public class FavLegsFragment extends Fragment{
         listOfFavLegs = sharedPref.getStringSet(getString(R.string.favoriteLegislators), new HashSet<String>());
         Set<String> newSet = new HashSet<>();
         newSet.addAll(listOfFavLegs);
-
 
         String[] stringArrayOfLegs = newSet.toArray(new String[newSet.size()]);
         legsArray = new MyLegislatorListTag[newSet.size()];

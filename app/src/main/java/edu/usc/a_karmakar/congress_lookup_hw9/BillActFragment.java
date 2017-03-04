@@ -58,32 +58,7 @@ public class BillActFragment extends Fragment implements MyJsonTask.AsyncRespons
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent mIntent = new Intent(getActivity(), BillDetailActivity.class);
-
-                String thisBillId = billArray[position].getBill_id();
-                String thisBillTitle = billArray[position].getOfficial_title();
-                String thisBillType = billArray[position].getBill_type();
-                String thisBillChamber = billArray[position].getChamber().equals("house") ? "House" : "Senate";
-                String thisBillIntroOn = billArray[position].getIntroduced_on();
-                String thisBillSponsor = billArray[position].getSponsor().getTitle() + ". " +
-                                        billArray[position].getSponsor().getLast_name() + ", " +
-                                        billArray[position].getSponsor().getFirst_name();
-
-                String thisBillStatus = billArray[position].getHistory().isActive() ? "Active" : "New";
-                String thisBillCongressUrl = billArray[position].getUrls().getCongress();
-                String thisBillVS = billArray[position].getLast_version().getVersion_name();
-                String thisBillUrl = billArray[position].getLast_version().getUrl().getHtml();
-
-                mIntent.putExtra("billID", thisBillId);
-                mIntent.putExtra("billTitle", thisBillTitle);
-                mIntent.putExtra("billType", thisBillType);
-                mIntent.putExtra("billSponsor", thisBillSponsor);
-                mIntent.putExtra("billChamber", thisBillChamber);
-                mIntent.putExtra("billStatus", thisBillStatus);
-                mIntent.putExtra("billIntroOn", thisBillIntroOn);
-                mIntent.putExtra("billCurl", thisBillCongressUrl);
-                mIntent.putExtra("billVS", thisBillVS);
-                mIntent.putExtra("billUrl", thisBillUrl);
-
+                mIntent.putExtra("billBundle", billArray[position].toString());
                 startActivity(mIntent);
             }
         });

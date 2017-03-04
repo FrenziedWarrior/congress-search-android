@@ -13,24 +13,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
+import com.google.gson.Gson;
+
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FavCommFragment extends Fragment implements MyJsonTask.AsyncResponse {
+public class FavCommFragment extends Fragment{
+    private View rootView;
     MyCommTag[] commArray;
     CommListAdapter adapter;
-    private ListView listView;
-    private View rootView;
-    private MyJsonTask myTask;
+    Gson gson;
+    SharedPreferences sharedPref;
+    Set<String> listFavComms;
 
     public FavCommFragment() {
         // Required empty public constructor
@@ -41,12 +39,9 @@ public class FavCommFragment extends Fragment implements MyJsonTask.AsyncRespons
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_comm_tab, container, false);
-        try {
-            myTask = new MyJsonTask(this);
-            myTask.execute(new URL("http://congress-lookup.appspot.com/congress8.php?method=com"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        gson = new Gson();
+        sharedPref = getActivity().getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         return rootView;
     }
 
@@ -54,67 +49,36 @@ public class FavCommFragment extends Fragment implements MyJsonTask.AsyncRespons
     public void onResume() {
         super.onResume();
         ActionBar mActionBar =  ((AppCompatActivity) getActivity()).getSupportActionBar();
+        assert mActionBar != null;
         mActionBar.setTitle("Favorites");
-
-        if (commArray==null) {
-            return;
-        }
-
-        ArrayList<MyCommTag> newCommList = new ArrayList<>(Arrays.asList(commArray));
-        SharedPreferences sharedPref = getActivity().getSharedPreferences(
-                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        Set<String> cidKeys = sharedPref.getStringSet(getString(R.string.favoriteCommittees), new HashSet<String>());
-        for(int i=0; i<newCommList.size(); ++i) {
-            if(!cidKeys.contains(newCommList.get(i).getCommittee_id())) {
-                newCommList.remove(newCommList.get(i));
-            }
-        }
-
-        commArray = newCommList.toArray(new MyCommTag[newCommList.size()]);
-        adapter.update(commArray);
-        adapter.notifyDataSetChanged();
+        populateFavComms();
     }
 
-    @Override
-    public void processFinish(String output) {
-        GsonFilter gfObject = new GsonFilter(output);
-        SharedPreferences sharedPref = getActivity().getSharedPreferences(
-                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        Set<String> cidKeys = sharedPref.getStringSet(getString(R.string.favoriteCommittees), new HashSet<String>());
-        gfObject.filterFavComms(cidKeys);
+    public void populateFavComms() {
+        listFavComms = sharedPref.getStringSet(getString(R.string.favoriteCommittees), new HashSet<String>());
+        Set<String> newSet = new HashSet<>();
+        newSet.addAll(listFavComms);
 
-        commArray = gfObject.getFavCommArray();
+        String[] arrComms = newSet.toArray(new String[newSet.size()]);
+        commArray = new MyCommTag[newSet.size()];
+        for(int i=0; i<arrComms.length; ++i) {
+            commArray[i] = new MyCommTag();
+            commArray[i] = gson.fromJson(arrComms[i], MyCommTag.class);
+        }
+
         adapter = new CommListAdapter(getActivity(), R.layout.list_item_comm, commArray);
-        listView = (ListView) rootView.findViewById(R.id.comm_list_view);
+        ListView listView = (ListView) rootView.findViewById(R.id.comm_list_view);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent mIntent = new Intent(getActivity(), CommDetailActivity.class);
-
-                String thisCommId = commArray[position].getCommittee_id();
-                String thisCommName = commArray[position].getName();
-                String thisCommPC = commArray[position].getParent_committee_id();
-                String thisCommChamber = commArray[position].getChamber().equals("house") ? "House" : "Senate";
-                String thisCommContact = commArray[position].getPhone();
-                String thisCommOffice = commArray[position].getOffice();
-
-                mIntent.putExtra("commID", thisCommId);
-                mIntent.putExtra("commName", thisCommName);
-                mIntent.putExtra("commChamber", thisCommChamber);
-                mIntent.putExtra("commPC", thisCommPC);
-                mIntent.putExtra("commContact", thisCommContact);
-                mIntent.putExtra("commOffice", thisCommOffice);
-
+                mIntent.putExtra("commBundle", commArray[position].toString());
                 startActivity(mIntent);
             }
         });
+
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        myTask.cancel(true);
-    }
 }

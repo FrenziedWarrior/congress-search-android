@@ -3,19 +3,19 @@ package edu.usc.a_karmakar.congress_lookup_hw9;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.squareup.picasso.Picasso;
+
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
@@ -56,8 +56,10 @@ public class LegislatorDetailActivity extends AppCompatActivity implements MyJso
         setContentView(R.layout.activity_legislator_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Legislator Info");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Legislator Info");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         String bidParam = getIntent().getExtras().getString("bioguide");
         try {
@@ -109,7 +111,7 @@ public class LegislatorDetailActivity extends AppCompatActivity implements MyJso
         myLegHolder.legsChamber.setText(chamber);
 
         String contact = infoObj.getPhone();
-        contact = contact=="null" ? "N.A." : contact;
+        contact = contact.equals("null") ? "N.A." : contact;
         myLegHolder.legsContact.setText(contact);
 
         try {

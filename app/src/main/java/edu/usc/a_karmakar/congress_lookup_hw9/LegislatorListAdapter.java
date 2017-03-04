@@ -2,10 +2,7 @@ package edu.usc.a_karmakar.congress_lookup_hw9;
 
 import android.app.Activity;
 import android.content.Context;
-import android.media.Image;
-import android.support.annotation.IntegerRes;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,8 +39,7 @@ class LegislatorListAdapter extends ArrayAdapter<MyLegislatorListTag> {
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         ViewHolder holder;
         View rowView = convertView;
-        MyLegislatorListTag obj;
-        obj = data[position];
+        MyLegislatorListTag obj = data[position];
 
         if(rowView == null) {
             LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
@@ -75,7 +71,6 @@ class LegislatorListAdapter extends ArrayAdapter<MyLegislatorListTag> {
 
     @Override
     public int getCount() {
-
         return data.length;
     }
 
