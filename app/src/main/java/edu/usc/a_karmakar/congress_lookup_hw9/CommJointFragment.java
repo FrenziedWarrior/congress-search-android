@@ -36,7 +36,8 @@ public class CommJointFragment extends Fragment implements MyJsonTask.AsyncRespo
         rootView = inflater.inflate(R.layout.fragment_comm_tab, container, false);
         try {
             myTask = new MyJsonTask(this);
-            myTask.execute(new URL("http://congress-lookup.appspot.com/congress8.php?method=com"));
+            CustomUriBuilder targetUri = new CustomUriBuilder("comm", "joint");
+            myTask.execute(new URL(targetUri.buildUri()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -88,6 +89,7 @@ public class CommJointFragment extends Fragment implements MyJsonTask.AsyncRespo
     public void onResume() {
         super.onResume();
         ActionBar mActionBar =  ((AppCompatActivity) getActivity()).getSupportActionBar();
+        assert mActionBar != null;
         mActionBar.setTitle("Committees");
     }
 

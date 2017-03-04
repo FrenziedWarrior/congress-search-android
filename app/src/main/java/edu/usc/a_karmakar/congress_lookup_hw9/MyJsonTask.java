@@ -17,7 +17,7 @@ import java.net.URL;
 
 public class MyJsonTask extends AsyncTask<URL, Void, String> {
         private HttpURLConnection urlConnection;
-        private String res;
+        private String res = "";
         private int responseCode;
 
         public interface AsyncResponse {
@@ -32,15 +32,15 @@ public class MyJsonTask extends AsyncTask<URL, Void, String> {
 
         @Override
         protected String doInBackground(URL... urls) {
-            try {
-                urlConnection = (HttpURLConnection) urls[0].openConnection();
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                res = readStream(in);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                urlConnection.disconnect();
-            }
+                try {
+                    urlConnection = (HttpURLConnection) urls[0].openConnection();
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    res += readStream(in) + "";
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    urlConnection.disconnect();
+                }
 
             return res;
         }

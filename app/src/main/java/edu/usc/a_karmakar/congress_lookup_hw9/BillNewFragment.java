@@ -35,7 +35,8 @@ public class BillNewFragment extends Fragment implements MyJsonTask.AsyncRespons
         rootView = inflater.inflate(R.layout.fragment_bill_act, container, false);
         try {
             myTask = new MyJsonTask(this);
-            myTask.execute(new URL("http://congress-lookup.appspot.com/congress8.php?method=bill"));
+            CustomUriBuilder targetUri = new CustomUriBuilder("bill", "new");
+            myTask.execute(new URL(targetUri.buildUri()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -46,7 +47,7 @@ public class BillNewFragment extends Fragment implements MyJsonTask.AsyncRespons
     public void processFinish(String output) {
         ListView listView;
         GsonFilter gfObject = new GsonFilter(output);
-        gfObject.billParse("new");
+        gfObject.billParse();
 
         billArray = gfObject.getBillInfoArray();
         adapter = new BillListAdapter(getActivity(), R.layout.list_item_bill, billArray);
@@ -98,6 +99,7 @@ public class BillNewFragment extends Fragment implements MyJsonTask.AsyncRespons
     public void onResume() {
         super.onResume();
         ActionBar mActionBar =  ((AppCompatActivity) getActivity()).getSupportActionBar();
+        assert mActionBar != null;
         mActionBar.setTitle("Bills");
     }
 

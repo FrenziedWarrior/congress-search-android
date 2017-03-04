@@ -9,12 +9,6 @@ public class CustomUriBuilder {
     private String meta;
 
     private String[] methList = { "legislators?", "bills?", "committees?", "amendments?" };
-    private String urlHead = "https://congress.api.sunlightfoundation.com/";
-    private String apikeyParam = "apikey=f2f1a9b078cb4a41b12596f120841842";
-    private String perPageParam = "per_page";
-    private String orderParam = "order";
-    private String chamberParam = "chamber";
-    private String bioguideParam = "bioguide_id";
 
     public CustomUriBuilder(String meth, String meta) {
         this.method = meth;
@@ -26,7 +20,15 @@ public class CustomUriBuilder {
     }
 
     String buildUri() {
+        String urlHead = "https://congress.api.sunlightfoundation.com/";
+        String apikeyParam = "apikey=f2f1a9b078cb4a41b12596f120841842";
+        String perPageParam = "per_page";
+        String orderParam = "order";
+        String chamberParam = "chamber";
+        String bioguideParam = "bioguide_id";
+
         String finalUri = urlHead;
+
         switch (method) {
             case "legs":
                 finalUri += methList[0];
@@ -44,16 +46,51 @@ public class CustomUriBuilder {
                         break;
 
                     default:
+                        // bioguide_id case, separator = ^
+                        // details url
+                        String targetBid = meta.split(":")[1];
+                        finalUri += combineParam(bioguideParam, targetBid);
 
+                        /*
+                        // top bills url
+                        finalUri += urlHead;
+                        finalUri += methList[1];
+                        finalUri += apikeyParam + "&";
+                        finalUri += combineParam(perPageParam, "5") + "&";
+                        finalUri += combineParam("sponsor_id__in", targetBid) + "^";
+
+                        // top comm url
+                        finalUri += urlHead;
+                        finalUri += methList[2];
+                        finalUri += apikeyParam + "&";
+                        finalUri += combineParam(perPageParam, "5") + "&";
+                        finalUri += combineParam("member_ids", targetBid);
+                        */
                 }
                 break;
 
             case "bill":
                 finalUri += methList[1];
+                finalUri += apikeyParam + "&";
+                finalUri += combineParam(perPageParam, "50") + "&";
+                switch (meta) {
+                    case "active":
+                        finalUri += combineParam("history.active", "true") + "&";
+                        break;
+
+                    case "new":
+                        finalUri += combineParam("history.active", "false") + "&";
+                        break;
+                }
+
+                finalUri += combineParam("order", "introduced_on") + "&";
+                finalUri += combineParam("last_version.urls.pdf__exists", "true");
                 break;
 
             case "comm":
                 finalUri += methList[2];
+                finalUri += apikeyParam + "&";
+                finalUri += combineParam(perPageParam, "all");
                 break;
 
         }
@@ -61,36 +98,3 @@ public class CustomUriBuilder {
         return finalUri;
     }
 }
-
-/*
-    $bioguideParam = combineParam($bioguideParam, $_GET['bid']);
-    array_push($urlComponents, $reqUrl, $perPageParam, $bioguideParam);
-    $reqUrl = join("&", $urlComponents);
-
-    $jsonPersonal = file_get_contents($reqUrl);
-
-    $urlComponents = array();
-    $sponsorIdParam = combineParam("sponsor_id__in", $_GET['bid']);
-    $perPageParam = combineParam("per_page", "5");
-    $reqUrl = $urlHead;
-    $reqUrl .= "bills?";
-    $reqUrl .= $apikeyParam;
-    array_push($urlComponents, $reqUrl, $perPageParam, $sponsorIdParam);
-    $reqUrl = join("&", $urlComponents);
-
-    $jsonTopBills = file_get_contents($reqUrl);
-
-
-    $urlComponents = array();
-    $memberIdParam = combineParam("member_ids", $_GET['bid']);
-    $perPageParam = combineParam("per_page", "5");
-    $reqUrl = $urlHead;
-    $reqUrl .= "committees?";
-    $reqUrl .= $apikeyParam;
-    array_push($urlComponents, $reqUrl, $perPageParam, $memberIdParam);
-    $reqUrl = join("&", $urlComponents);
-    $jsonTopComs = file_get_contents($reqUrl);
-    $jsonContents = json_encode(array($jsonPersonal, $jsonTopBills, $jsonTopComs));
-
-*/
-

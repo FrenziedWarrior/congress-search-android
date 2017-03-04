@@ -97,8 +97,8 @@ public class GsonFilter {
 
     public void legsDetailsParse() {
         try {
-            String sth = new JSONArray(myObj).getString(0);
-            details = new JSONObject(sth).getJSONArray("results").getJSONObject(0);
+//            String sth = new JSONArray(myObj).getString(0);
+            details = new JSONObject(myObj).getJSONArray("results").getJSONObject(0);
             ldBundle = gson.fromJson(details.toString(), MyLegsDetailTag.class);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -128,17 +128,19 @@ public class GsonFilter {
     }
 
 
-    public void billParse(String check) {
-        String sth = null;
+    public void billParse() {
+//        String sth = null;
         JSONObject currBill;
         try {
+/*
             if(check.equals("active")) {
                 sth = new JSONArray(myObj).getString(0);
             }
             else if (check.equals("new")) {
                 sth = new JSONArray(myObj).getString(1);
             }
-            JSONArray resultArray = new JSONObject(sth).getJSONArray("results");
+*/
+            JSONArray resultArray = new JSONObject(myObj).getJSONArray("results");
             billInfoArray = new MyBillTag[resultArray.length()];
             for(int i=0; i<resultArray.length(); i++) {
                 currBill = resultArray.getJSONObject(i);
